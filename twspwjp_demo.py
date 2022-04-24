@@ -17,6 +17,8 @@ import math
 
 
 json_path = './dataset/DS0/input1.json'
+
+#Read input
 f = open(json_path)
 input = json.load(f)
 f.close()
@@ -49,6 +51,8 @@ split_min = input['Splitmin']
 LB = math.ceil(np.sum(p) / k)
 UB = LB + math.ceil( np.sum(m - 1) / k) * 2 * split_min
 
+
+# Init
 contrainst0 = []
 x = {}
 for i in range(n):
@@ -63,8 +67,6 @@ for i in range(n):
   for j in range(k):
     y[i][j]  = cp.Variable(shape = m[j], integer=True)
     contrainst0.append(y[i][j] >= 0)
-    # for t in range(m[j]):
-    #   contrainst0.append(y[i][j][t] >= 0)
 
 s = {}
 for i in range(n):
@@ -72,8 +74,6 @@ for i in range(n):
   for j in range(k):
     s[i][j]  = cp.Variable(shape = m[j], integer=True)
     contrainst0.append(s[i][j] >= 0)
-    # for t in range(m[j]):
-    #   contrainst0.append(s[i][j][t] >= 0)
 
 z = cp.Variable(shape = (n,k), boolean = True)
 
@@ -107,6 +107,7 @@ for i in range(n):
 
 objective = cp.Minimize(C_max)
 
+#contrainst
 contrainst1 = []
 
 for i in range(n):
@@ -164,12 +165,15 @@ for i in range(n):
   sum = cp.sum(z[i])
   contrainst7.append(sum == 1)
 
+#Solve
 contrainst = contrainst0 + contrainst1 + contrainst2 +contrainst3 + contrainst4  + contrainst5 + contrainst6  + contrainst7 
 prob = cp.Problem(objective, contrainst)
 begin = time.time()
 result = prob.solve('CPLEX',cplex_params= {'timelimit': 600}, verbose=False)
 result = int(result)
 
+
+# Visul
 print('Timer:     ', end ='')
 for time in range(1,result + 1):
   print(f'{time:2d}', end = ' ')

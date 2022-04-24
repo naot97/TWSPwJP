@@ -55,7 +55,7 @@ for dataset in datasets:
     LB = math.ceil(np.sum(p) / k)
     UB = LB + math.ceil( np.sum(m - 1) / k) * 2 * split_min
 
-
+    # sort array of processing time
     sorted_p = np.sort(p)
     c = np.zeros(k)
 
@@ -79,7 +79,9 @@ for dataset in datasets:
         c[current_machine] = c[current_machine] + p_i + idle_time
       else :
         c[current_machine] = c[current_machine] + p_i
-    
+
+      if W_i[1] - c[current_machine] < split_min:
+        c[current_machine] = W_i[1]
     # Find C_max
     c_max = 0
     for j in range(k):

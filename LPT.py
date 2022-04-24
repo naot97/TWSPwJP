@@ -55,44 +55,49 @@ for dataset in datasets:
     LB = math.ceil(np.sum(p) / k)
     UB = LB + math.ceil( np.sum(m - 1) / k) * 2 * split_min
 
-
-    sorted_p = np.sort(p, )[::-1]
-    s = np.zeros(k)
+    # sort array of processing time
+    sorted_p = np.sort(p)[::-1]
+    c = np.zeros(k)
 
     for p_i in sorted_p:
 
-      min_s = 99999
+      # Find the machine has minimum work in the current
+      min_c = 99999
       current_machine = -1
       for j in range(k):
-        if s[j] < min_s:
-          min_s = s[j]
+        if c[j] < min_c:
+          min_c = c[j]
           current_machine = j
 
+      # check split_min condition and calculate idle time
       for W_i in W[current_machine]:
-        if W_i[0] <= s[current_machine] + p_i <= W_i[1]:
+        if W_i[0] <= c[current_machine] + p_i <= W_i[1]:
           break
 
-      if s[current_machine] + p_i - W_i[0] < split_min:
-        idle_time = split_min - (s[current_machine] + p_i - W_i[0])
-        s[current_machine] = s[current_machine] + p_i + idle_time
+      if c[current_machine] + p_i - W_i[0] < split_min:
+        idle_time = split_min - (c[current_machine] + p_i - W_i[0])
+        c[current_machine] = c[current_machine] + p_i + idle_time
       else :
-        s[current_machine] = s[current_machine] + p_i
-    
-    max_s = 0
+        c[current_machine] = c[current_machine] + p_i
+
+      if W_i[1] - c[current_machine] < split_min:
+        c[current_machine] = W_i[1]
+    # Find C_max
+    c_max = 0
     for j in range(k):
-      if s[j] > max_s:
-        max_s = s[j]
+      if c[j] > c_max:
+        c_max = c[j]
 
     data = {}
     data['name'] = json_name
     data['n'] = n
     data['k'] = k
     data['LB'] = LB
-    data['C_max'] = max_s
+    data['C_max'] = c_max
     data['t'] = 0
     result_list.append(data)
 
 
 
     df = pd.DataFrame(result_list)
-    df.to_excel('SPT.xlsx')
+    df.to_excel('LPT.xlsx')
